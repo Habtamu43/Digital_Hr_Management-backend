@@ -1,0 +1,20 @@
+# Node modules
+/node_modules
+
+# Environment variables
+.env
+
+# Sequelize config file with credentials
+/config/config.json
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build folders (if any)
+/dist
+/build
