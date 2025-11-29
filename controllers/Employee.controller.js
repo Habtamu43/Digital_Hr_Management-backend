@@ -1,5 +1,5 @@
-// Employee.controller.js (top of the file)
-import db from '../models/index.js';
+import db from "../config/db.js";
+
 const { Employee, Department, Organization } = db;
 
 // Get all employees

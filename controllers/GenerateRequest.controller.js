@@ -1,6 +1,6 @@
 
 
-import db from '../models/index.js';
+import db from "../config/db.js";
 
 const { Department, Employee, GenerateRequest} = db
 

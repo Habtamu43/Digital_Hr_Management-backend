@@ -1,34 +1,45 @@
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+// backend/config/db.js
+import { Sequelize, DataTypes } from "sequelize";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-dotenv.config(); // Load environment variables from .env
+dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Get environment, default to 'development'
-const env = process.env.NODE_ENV || 'development';
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT || "postgres",
+    logging: false,
+  }
+);
 
-// Map the environment variables
-const DB_NAME = process.env.DB_NAME;
-const DB_USERNAME = process.env.DB_USERNAME;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_HOST = process.env.DB_HOST;
-const DB_DIALECT = process.env.DB_DIALECT || 'postgres';
+const db = {};
+const modelsPath = path.join(process.cwd(), "models");
 
-// Initialize Sequelize
-const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
-  host: DB_HOST,
-  dialect: DB_DIALECT,
-  logging: false,
+// Dynamically load models
+const modelFiles = fs
+  .readdirSync(modelsPath)
+  .filter((file) => file.endsWith(".js") && file !== "index.js");
+
+for (const file of modelFiles) {
+  const { default: modelFunc } = await import(`file://${path.join(modelsPath, file)}`);
+  const model = modelFunc(sequelize, DataTypes);
+  db[model.name] = model;
+}
+
+// Setup associations
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) db[modelName].associate(db);
 });
 
-// Optional: separate connect function
-export const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connected successfully!');
-  } catch (err) {
-    console.error('Unable to connect to database:', err);
-    process.exit(1); // exit if DB connection fails
-  }
-};
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-export default sequelize;
+export default db;

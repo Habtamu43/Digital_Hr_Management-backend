@@ -1,4 +1,4 @@
-import db from '../models/index.js';
+import db from "../config/db.js";
 
 export const {Employee,HumanResources,Leave} = db
 

@@ -1,4 +1,5 @@
-import db from '../models/index.js';
+import db from "../config/db.js";
+
 
 const { Employee, Department , Leave ,Salary , Notice , GenerateRequest , Balance} = db
 

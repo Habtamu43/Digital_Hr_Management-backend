@@ -1,4 +1,4 @@
-import db from '../models/index.js';
+import db from "../config/db.js";
 const { HumanResources, Organization } = db;
 
 import bcrypt from 'bcrypt';
