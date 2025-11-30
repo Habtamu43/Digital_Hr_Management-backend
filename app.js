@@ -1,3 +1,4 @@
+
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -25,9 +26,24 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
+// debugging 
+app.use((req, res, next) => {
+  console.log("Incoming Request:", req.method, req.url);
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+
+  next();
+});
+
+app.post("/test", (req, res) => {
+    console.log("Test body:", req.body);
+    res.json({ received: req.body });
+});
+
 
 // Mount routes
 app.use("/api/auth/employee", EmployeeAuthRouter);
@@ -48,3 +64,5 @@ app.use("/api/v1/corporate-calendar", CorporateCalendarRouter);
 app.use("/api/v1/balance", BalanceRouter);
 
 export default app;
+
+
