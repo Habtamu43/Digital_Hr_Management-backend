@@ -2,13 +2,13 @@ import express from "express";
 import {
   HandleHRSignup,
   HandleHRVerifyEmail,
-  HandleHRResetverifyEmail,
+  HandleHRResendVerificationEmail,
   HandleHRLogin,
   HandleHRCheck,
   HandleHRLogout,
   HandleHRForgotPassword,
   HandleHRResetPassword,
-  HandleHRcheckVerifyEmail
+  HandleHRCheckVerifyEmail,
 } from "../controllers/HRAuth.controller.js";
 
 import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
@@ -23,7 +23,7 @@ router.post("/signup", HandleHRSignup);
 router.post("/verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRVerifyEmail);
 
 // Resend HR verification email (HR-Admin only)
-router.post("/resend-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRResetverifyEmail);
+router.post("/resend-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRResendVerificationEmail);
 
 // HR login
 router.post("/login", HandleHRLogin);
@@ -32,7 +32,7 @@ router.post("/login", HandleHRLogin);
 router.get("/check-login", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRCheck);
 
 // Check HR email verification status (HR-Admin only)
-router.get("/check-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRcheckVerifyEmail);
+router.get("/check-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRCheckVerifyEmail);
 
 // HR logout
 router.post("/logout", HandleHRLogout);

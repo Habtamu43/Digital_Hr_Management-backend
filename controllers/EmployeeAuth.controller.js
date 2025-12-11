@@ -9,8 +9,8 @@ import  { GenerateVerificationToken } from "../utils/generateverificationtoken.j
 import { 
     SendVerificationEmail, 
     SendWelcomeEmail, 
-    SendForgotPasswordEmail, 
-    SendResetPasswordConfimation 
+    SendForgotPasswordEmail,
+    SendResetPasswordConfirmation
 } from "../mailtrap/emails.js";
 import { GenerateJwtTokenAndSetCookiesEmployee } from "../utils/generatejwttokenandsetcookies.js";
 import { Op } from "sequelize";
@@ -215,7 +215,7 @@ export const HandleEmployeeSetPassword = async (req, res) => {
         employee.resetpasswordexpires = null;
         await employee.save();
 
-        await SendResetPasswordConfimation(employee.email);
+        await SendResetPasswordConfirmation(employee.email);
 
         return res.status(200).json({ success: true, message: "Password reset successfully" });
 
