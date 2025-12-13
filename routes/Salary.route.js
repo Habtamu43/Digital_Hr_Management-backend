@@ -7,24 +7,24 @@ import {
   HandleDeleteSalary
 } from "../controllers/Salary.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
 
 // Create a salary record (HR-Admin only)
-router.post("/create-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary);
+router.post("/create-salary", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary);
 
 // Get all salary records (HR-Admin only)
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary);
 
 // Get a specific salary record by ID (HR-Admin only)
-router.get("/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleSalary);
+router.get("/:salaryID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleSalary);
 
 // Update a salary record (HR-Admin only)
-router.patch("/update-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary);
+router.patch("/update-salary", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary);
 
 // Delete a salary record by ID (HR-Admin only)
-router.delete("/delete-salary/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary);
+router.delete("/delete-salary/:salaryID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary);
 
 export default router;

@@ -7,7 +7,7 @@ import {
   HandleDeleteApplicant
 } from "../controllers/Applicant.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -15,7 +15,7 @@ const router = express.Router();
 // Create applicant
 router.post(
   "/create-applicant",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleCreateApplicant
 );
@@ -23,7 +23,7 @@ router.post(
 // Get all applicants
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllApplicants
 );
@@ -31,7 +31,7 @@ router.get(
 // Get single applicant
 router.get(
   "/:applicantID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleApplicant
 );
@@ -39,7 +39,7 @@ router.get(
 // Update applicant
 router.patch(
   "/update-applicant",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateApplicant
 );
@@ -47,7 +47,7 @@ router.patch(
 // Delete applicant
 router.delete(
   "/delete-applicant/:applicantID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteApplicant
 );

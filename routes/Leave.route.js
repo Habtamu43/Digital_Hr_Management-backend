@@ -8,7 +8,7 @@ import {
   HandleUpdateLeavebyHR
 } from "../controllers/Leave.controller.js";
 
-import { VerifyEmployeeToken, VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyEmployeeToken, VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -17,16 +17,16 @@ const router = express.Router();
 router.post("/create-leave", VerifyEmployeeToken, HandleCreateLeave);
 
 // HR-Admin views all leave requests
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllLeaves);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllLeaves);
 
 // HR-Admin views a specific leave request by ID
-router.get("/:leaveID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleLeave);
+router.get("/:leaveID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleLeave);
 
 // Employee updates their leave request
 router.patch("/employee-update-leave", VerifyEmployeeToken, HandleUpdateLeaveByEmployee);
 
 // HR-Admin updates leave status
-router.patch("/HR-update-leave", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateLeavebyHR);
+router.patch("/HR-update-leave", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateLeavebyHR);
 
 // Employee deletes their leave request
 router.delete("/delete-leave/:leaveID", VerifyEmployeeToken, HandleDeleteLeave);

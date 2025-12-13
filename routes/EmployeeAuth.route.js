@@ -11,13 +11,13 @@ import {
   HandleEmployeeCheckVerifyEmail
 } from "../controllers/EmployeeAuth.controller.js";
 
-import { VerifyEmployeeToken, VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyEmployeeToken, VerifyHRToken } from "../middleware/Auth.middleware.js";
 import {RoleAuthorization}  from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
 
 // Employee signup (HR-Admin only)
-router.post("/signup", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeSignup);
+router.post("/signup", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeSignup);
 
 // Employee verifies email
 router.post("/verify-email", VerifyEmployeeToken, HandleEmployeeVerifyEmail);
