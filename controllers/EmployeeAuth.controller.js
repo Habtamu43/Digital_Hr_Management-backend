@@ -16,27 +16,33 @@ import { GenerateJwtTokenAndSetCookiesEmployee } from "../utils/generatejwttoken
 import { Op } from "sequelize";
 
 // ================== Employee Signup ==================
+// ================== Employee Signup ==================
 export const HandleEmployeeSignup = async (req, res) => {
     const { firstname, lastname, email, password, contactnumber } = req.body;
 
     try {
+        // Validate required fields
         if (!firstname || !lastname || !email || !password || !contactnumber) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
+        // Get organization from admin/session (req.ORGID set by middleware)
         const organization = await Organization.findByPk(req.ORGID);
         if (!organization) {
             return res.status(404).json({ success: false, message: "Organization not found" });
         }
 
-        const existingEmployee = await Employee.findOne({ where: { email } });
+        // Check if employee already exists
+        const existingEmployee = await Employee.findOne({ where: { email, organizationId: organization.id } });
         if (existingEmployee) {
             return res.status(400).json({ success: false, message: "Employee already exists" });
         }
 
+        // Hash password and generate verification code
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationcode = GenerateVerificationToken(6);
 
+        // Create new employee linked to organization
         const newEmployee = await Employee.create({
             firstname,
             lastname,
@@ -49,11 +55,12 @@ export const HandleEmployeeSignup = async (req, res) => {
             organizationId: organization.id
         });
 
-        // Optional: associate employee with organization (if association exists in Sequelize)
+        // Optional: associate employee with organization
         if (organization.addEmployee) {
             await organization.addEmployee(newEmployee);
         }
 
+        // Send verification email
         await SendVerificationEmail(email, verificationcode);
 
         return res.status(201).json({

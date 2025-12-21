@@ -1,10 +1,10 @@
 'use strict';
 
-const Employee = (sequelize,DataTypes) => {
+const Employee = (sequelize, DataTypes) => {
   const Employee = sequelize.define('Employee', {
     firstname: {
       type: DataTypes.STRING,
-      allowNull: false, // required: true
+      allowNull: false,
     },
     lastname: {
       type: DataTypes.STRING,
@@ -34,7 +34,7 @@ const Employee = (sequelize,DataTypes) => {
     },
     lastLogin: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW, // same as default: Date.now
+      defaultValue: DataTypes.NOW,
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
@@ -57,17 +57,19 @@ const Employee = (sequelize,DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    departmentID: {
+    departmentId: {
       type: DataTypes.INTEGER,
+      field: 'departmentID', // maps to DB column
       references: {
-        model: 'Departments', // references Department table
+        model: 'Departments',
         key: 'id',
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    attendanceID: {
+    attendanceId: {
       type: DataTypes.INTEGER,
+      field: 'attendanceID', // maps to DB column
       references: {
         model: 'Attendances',
         key: 'id',
@@ -75,8 +77,9 @@ const Employee = (sequelize,DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    organizationID: {
+    organizationId: {
       type: DataTypes.INTEGER,
+      field: 'organizationID', // maps to DB column
       references: {
         model: 'Organizations',
         key: 'id',
@@ -85,49 +88,42 @@ const Employee = (sequelize,DataTypes) => {
       onDelete: 'SET NULL',
     },
   }, {
-    timestamps: true, // adds createdAt & updatedAt automatically
-    tableName: 'Employees', // optional, ensures consistent table name
+    timestamps: true,
+    tableName: 'Employees',
   });
 
-  // ✅ Associations
+  // Associations
   Employee.associate = (models) => {
-    // Belongs to a department
     Employee.belongsTo(models.Department, {
-      foreignKey: 'departmentID',
+      foreignKey: 'departmentId',
       as: 'department',
     });
 
-    // Belongs to one organization
     Employee.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
 
-    // Belongs to attendance
     Employee.belongsTo(models.Attendance, {
-      foreignKey: 'attendanceID',
+      foreignKey: 'attendanceId',
       as: 'attendance',
     });
 
-    // Has many notices
     Employee.hasMany(models.Notice, {
       foreignKey: 'employeeID',
       as: 'notices',
     });
 
-    // Has many salaries
     Employee.hasMany(models.Salary, {
       foreignKey: 'employeeID',
       as: 'salaries',
     });
 
-    // Has many leave requests
     Employee.hasMany(models.Leave, {
       foreignKey: 'employeeID',
       as: 'leaveRequests',
     });
 
-    // Has many generate requests
     Employee.hasMany(models.GenerateRequest, {
       foreignKey: 'employeeID',
       as: 'generateRequests',
@@ -137,4 +133,4 @@ const Employee = (sequelize,DataTypes) => {
   return Employee;
 };
 
-export default Employee
+export default Employee;

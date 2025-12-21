@@ -1,6 +1,6 @@
 'use strict';
 
-const Applicant = (sequelize,DataTypes) => {
+const Applicant = (sequelize, DataTypes) => {
   const Applicant = sequelize.define('Applicant', {
     firstname: {
       type: DataTypes.STRING,
@@ -15,7 +15,9 @@ const Applicant = (sequelize,DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true
+        isEmail: {
+          msg: "Invalid email format"
+        }
       }
     },
     contactnumber: {
@@ -35,15 +37,28 @@ const Applicant = (sequelize,DataTypes) => {
         "Rejected"
       ),
       defaultValue: "pending",
+    },
+    recruitmentID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Recruitments', // make sure this table exists
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
     }
   }, {
     tableName: 'Applicants',
     timestamps: true
   });
 
-  // Associations (if any) go here
+  // Associations
   Applicant.associate = (models) => {
-    // Example: Applicant.belongsTo(models.Organization, { foreignKey: 'organizationID', as: 'organization' });
+    Applicant.belongsTo(models.Recruitment, {
+      foreignKey: 'recruitmentID',
+      as: 'recruitment'
+    });
   };
 
   return Applicant;
