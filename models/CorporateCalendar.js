@@ -1,45 +1,49 @@
-// models/CorporateCalendar.js
-'use strict';
+"use strict";
 
-const  CorporateCalendar = (sequelize,DataTypes) => {
-  const CorporateCalendar = sequelize.define('CorporateCalendar', {
-    eventTitle: {
-      type: DataTypes.STRING,
-      allowNull: false, // same as "required: true" in Mongoose
-    },
-    eventDate: {
-      type: DataTypes.DATE,
-      allowNull: false, // required field
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: false, // required field
-    },
-    audience: {
-      type: DataTypes.STRING,
-      allowNull: false, // required field
-    },
-    organizationID: {
-      type: DataTypes.INTEGER, // assuming Organization has a numeric ID (foreign key)
-      references: {
-        model: 'Organizations', // must match the table name of your Organization model
-        key: 'id',
+const CorporateCalendar = (sequelize, DataTypes) => {
+  const CorporateCalendar = sequelize.define(
+    "CorporateCalendar",
+    {
+      eventTitle: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      eventDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      audience: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      organizationId: {
+        type: DataTypes.INTEGER,
+        field: "organizationId", // ✅ ensures Sequelize uses the exact DB column
+        references: {
+          model: "Organizations",
+          key: "id",
+        },
       },
     },
-  }, {
-    timestamps: true, // same as Mongoose `{ timestamps: true }`
-    tableName: 'CorporateCalendars', // optional: ensures consistent naming
-  });
+    {
+      timestamps: true,
+      tableName: "CorporateCalendars",
+    },
+  );
 
   // Associations (optional)
   CorporateCalendar.associate = (models) => {
     CorporateCalendar.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
-      as: 'organization',
+      foreignKey: "organizationId",
+      as: "organization",
     });
   };
 
   return CorporateCalendar;
 };
 
-export default CorporateCalendar  
+export default CorporateCalendar;

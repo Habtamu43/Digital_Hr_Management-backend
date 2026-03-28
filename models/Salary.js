@@ -1,92 +1,99 @@
 'use strict';
 
-const Salary = (sequelize,DataTypes) => {
-  const Salary = sequelize.define('Salary', {
-    employeeID: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // required: true
-      references: {
-        model: 'Employees', // name of the Employee table
-        key: 'id',
+const Salary = (sequelize, DataTypes) => {
+  const Salary = sequelize.define(
+    'Salary',
+    {
+      // Link to Employee
+      employeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'employeeId', // exact DB column name
+        references: {
+          model: 'Employees', // table name
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    },
 
-    basicPay: {
-      type: DataTypes.FLOAT,
-      allowNull: false, // required: true
-    },
+      basicPay: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
 
-    bonuses: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
+      bonuses: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
 
-    deductions: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
+      deductions: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
 
-    netPay: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
+      netPay: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
 
-    currency: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+      currency: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
 
-    dueDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        isFutureDate(value) {
-          if (new Date(value) < new Date()) {
-            throw new Error('Due date must be in the future');
-          }
+      dueDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        validate: {
+          isFutureDate(value) {
+            if (new Date(value) < new Date()) {
+              throw new Error('Due date must be in the future');
+            }
+          },
         },
       },
-    },
 
-    paymentDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-
-    status: {
-      type: DataTypes.ENUM('Pending', 'Delayed', 'Paid'),
-      allowNull: false,
-      defaultValue: 'Pending',
-    },
-
-    organizationID: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'Organizations',
-        key: 'id',
+      paymentDate: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
-  },
-  {
-    timestamps: true,
-    tableName: 'Salaries',
-  });
 
-  // ✅ Associations
+      status: {
+        type: DataTypes.ENUM('Pending', 'Delayed', 'Paid'),
+        allowNull: false,
+        defaultValue: 'Pending',
+      },
+
+      // Link to Organization
+      organizationId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Organizations',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
+    },
+    {
+      tableName: 'Salaries',
+      timestamps: true,
+    }
+  );
+
+  // Associations
   Salary.associate = (models) => {
-    // One salary record belongs to an employee
+    // Each salary belongs to an employee
     Salary.belongsTo(models.Employee, {
-      foreignKey: 'employeeID',
+      foreignKey: 'employeeId', // JS property
       as: 'employee',
     });
 
-    // One salary record belongs to an organization
+    // Each salary belongs to an organization
     Salary.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
   };
@@ -94,4 +101,4 @@ const Salary = (sequelize,DataTypes) => {
   return Salary;
 };
 
-export default Salary
+export default Salary;

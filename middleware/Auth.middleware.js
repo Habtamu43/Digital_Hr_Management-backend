@@ -1,46 +1,91 @@
-// Auth.middleware.js
 import jwt from "jsonwebtoken";
 
+/* ===================== EMPLOYEE TOKEN ===================== */
 export const VerifyEmployeeToken = (req, res, next) => {
-  const token = req.cookies.EMtoken;
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized access", gologin: true });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      res.clearCookie("EMtoken");
-      return res.status(403).json({ success: false, message: "Unauthenticated employee", gologin: true });
+    const authHeader = req.headers.authorization;
+
+    // Get token from cookie or Authorization header
+    const token =
+      req.cookies?.EMtoken ||
+      (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        gologin: true,
+      });
     }
 
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    console.log("Organization ID from HR token:", decoded.organizationId);
+    // Attach decoded values to req object
     req.EMid = decoded.EMid;
     req.EMrole = decoded.EMrole;
-    req.ORGID = decoded.ORGID;
+    req.organizationId = decoded.organizationId; // ✅ standardized
+
+    // Ensure organizationId exists
+    if (!req.organizationId) {
+      return res.status(401).json({
+        success: false,
+        message: "Organization ID missing in token",
+        gologin: true,
+      });
+    }
+
     next();
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal server error", error });
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+      gologin: true,
+    });
   }
 };
 
+/* ===================== HR TOKEN ===================== */
+// Corrected middleware name
 export const VerifyhHRToken = (req, res, next) => {
-  const token = req.cookies.HRtoken;
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized access", gologin: true });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      res.clearCookie("HRtoken");
-      return res.status(403).json({ success: false, message: "Unauthenticated HR", gologin: true });
+    const authHeader = req.headers.authorization;
+    const token =
+      req.cookies?.HRtoken ||
+      (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        gologin: true,
+      });
     }
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    console.log("Decoded HR token:", decoded);
+
     req.HRid = decoded.HRid;
-    req.ORGID = decoded.ORGID;
-    req.Role = decoded.HRrole;
+    req.HRrole = decoded.HRrole;
+    req.organizationId = decoded.organizationId;
+
+    if (!req.organizationId) {
+      return res.status(401).json({
+        success: false,
+        message: "Organization ID missing in token",
+        gologin: true,
+      });
+    }
+
     next();
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal server error", error });
+    console.error("HR token error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+      gologin: true,
+    });
   }
 };

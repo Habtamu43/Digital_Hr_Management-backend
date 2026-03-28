@@ -1,132 +1,106 @@
 'use strict';
 
 const Employee = (sequelize, DataTypes) => {
-  const Employee = sequelize.define('Employee', {
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    lastname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: {
-          msg: 'Invalid email address format, please enter a valid email address',
-        },
+  const Employee = sequelize.define(
+    "Employee",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        field: "id",
+      },
+      firstname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      contactnumber: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      role: {
+        type: DataTypes.ENUM("HR-Admin", "Employee"),
+        allowNull: false,
+        defaultValue: "Employee",
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      /* ===================== FOREIGN KEYS ===================== */
+      // IMPORTANT: Ensure these match your actual Database column names
+      departmentId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: "departmentId", 
+      },
+      attendanceId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: "attendanceId",
+      },
+      organizationId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: "organizationId",
       },
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    contactnumber: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.ENUM('HR-Admin', 'Employee'),
-      allowNull: false,
-    },
-    lastLogin: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    verificationToken: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    verificationTokenExpires: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    resetPasswordToken: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    resetPasswordExpires: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    departmentId: {
-      type: DataTypes.INTEGER,
-      field: 'departmentID', // maps to DB column
-      references: {
-        model: 'Departments',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
-    attendanceId: {
-      type: DataTypes.INTEGER,
-      field: 'attendanceID', // maps to DB column
-      references: {
-        model: 'Attendances',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
-    organizationId: {
-      type: DataTypes.INTEGER,
-      field: 'organizationID', // maps to DB column
-      references: {
-        model: 'Organizations',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
-  }, {
-    timestamps: true,
-    tableName: 'Employees',
-  });
+    {
+      tableName: "Employees",
+      timestamps: true,
+    }
+  );
 
-  // Associations
+  /* ===================== ASSOCIATIONS ===================== */
   Employee.associate = (models) => {
     Employee.belongsTo(models.Department, {
-      foreignKey: 'departmentId',
-      as: 'department',
-    });
-
-    Employee.belongsTo(models.Organization, {
-      foreignKey: 'organizationId',
-      as: 'organization',
+      foreignKey: "departmentId",
+      as: "department",
     });
 
     Employee.belongsTo(models.Attendance, {
-      foreignKey: 'attendanceId',
-      as: 'attendance',
+      foreignKey: "attendanceId",
+      as: "attendance",
+    });
+
+    Employee.belongsTo(models.Organization, {
+      foreignKey: "organizationId",
+      as: "organization",
     });
 
     Employee.hasMany(models.Notice, {
-      foreignKey: 'employeeID',
-      as: 'notices',
+      foreignKey: "employeeId",
+      as: "notices",
     });
 
     Employee.hasMany(models.Salary, {
-      foreignKey: 'employeeID',
-      as: 'salaries',
+      foreignKey: "employeeId",
+      as: "salaries",
     });
 
     Employee.hasMany(models.Leave, {
-      foreignKey: 'employeeID',
-      as: 'leaveRequests',
+      foreignKey: "employeeId",
+      as: "leaveRequests",
     });
 
     Employee.hasMany(models.GenerateRequest, {
-      foreignKey: 'employeeID',
-      as: 'generateRequests',
+      foreignKey: "employeeId",
+      as: "generateRequests",
     });
   };
 

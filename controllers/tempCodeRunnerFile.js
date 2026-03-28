@@ -11,7 +11,7 @@ export const HandleAllEmployees = async (req, res) => {
     }
 
     const employees = await db.Employee.findAll({
-      where: { organizationID: req.ORGID },
+      where: { organizationId: req.organizationId },
       include: [{ model: db.Department, as: "department", attributes: ["name"] }],
       attributes: [
         "id",
@@ -47,7 +47,7 @@ export const HandleAllEmployees = async (req, res) => {
 export const HandleAllEmployeesIDS = async (req, res) => {
   try {
     const employees = await db.Employee.findAll({
-      where: { organizationID: req.ORGID },
+      where: { organizationId: req.organizationId },
       include: [{ model: db.Department, as: "department", attributes: ["name"] }],
       attributes: ["id", "firstname", "lastname"],
     });
@@ -73,7 +73,7 @@ export const HandleEmployeeByHR = async (req, res) => {
     const { employeeId } = req.params;
 
     const employee = await db.Employee.findOne({
-      where: { id: employeeId, organizationID: req.ORGID },
+      where: { id: employeeId, organizationId: req.organizationId },
       include: [{ model: db.Department, as: "department", attributes: ["name"] }],
       attributes: [
         "id",
@@ -115,7 +115,7 @@ export const HandleEmployeeByHR = async (req, res) => {
 export const HandleEmployeeByEmployee = async (req, res) => {
   try {
     const employee = await db.Employee.findOne({
-      where: { id: req.EMid, organizationID: req.ORGID },
+      where: { id: req.EMid, organizationId: req.organizationId },
       include: [{ model: db.Department, as: "department", attributes: ["name"] }],
       attributes: [
         "id",
@@ -204,8 +204,8 @@ export const HandleEmployeeDelete = async (req, res) => {
     }
 
     // Remove from organization
-    if (employee.organizationID) {
-      const organization = await db.Organization.findByPk(employee.organizationID);
+    if (employee.organizationId) {
+      const organization = await db.Organization.findByPk(employee.organizationId);
       if (organization) await organization.removeEmployee(employee);
     }
 

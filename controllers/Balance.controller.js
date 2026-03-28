@@ -4,15 +4,15 @@ const { Balance } = db
 // ==================== Create Balance ====================
 export const HandleCreateBalance = async (req, res) => {
   try {
-    const { title, description, availableamount, totalexpenses, expensemonth } = req.body;
+    const { title, description, availableAmount, totalExpenses, expenseMonth } = req.body;
 
-    if (!title || !description || !availableamount || !totalexpenses || !expensemonth) {
+    if (!title || !description || !availableAmount || !totalExpenses || !expenseMonth) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     // Check if balance record exists for the same month
     const existingBalance = await Balance.findOne({
-      where: { expensemonth },
+      where: { expenseMonth },
     });
 
     if (existingBalance) {
@@ -22,11 +22,11 @@ export const HandleCreateBalance = async (req, res) => {
     const newBalance = await Balance.create({
       title,
       description,
-      availableamount,
-      totalexpenses,
-      expensemonth,
-      submitdate: new Date(),
-      organizationId: req.ORGID,
+      availableAmount,
+      totalExpenses,
+      expenseMonth,
+      submitDate: new Date(),
+      organizationId: req.organizationId,
       createdBy: req.HRid,
     });
 
@@ -44,7 +44,7 @@ export const HandleCreateBalance = async (req, res) => {
 export const HandleAllBalances = async (req, res) => {
   try {
     const balances = await Balance.findAll({
-      where: { organizationId: req.ORGID },
+      where: { organizationId: req.organizationId },
     });
 
     return res.status(200).json({
@@ -63,7 +63,7 @@ export const HandleBalance = async (req, res) => {
     const { balanceID } = req.params;
 
     const balance = await Balance.findOne({
-      where: { id: balanceID, organizationId: req.ORGID },
+      where: { id: balanceID, organizationId: req.organizationId },
     });
 
     if (!balance) {
@@ -83,26 +83,43 @@ export const HandleBalance = async (req, res) => {
 // ==================== Update Balance ====================
 export const HandleUpdateBalance = async (req, res) => {
   try {
-    const { balanceID, UpdatedData } = req.body;
+    const { balanceID, UpdatedData } = req.body || {};
 
-    const [updatedRows, [updatedBalance]] = await Balance.update(UpdatedData, {
+    if (!balanceID || !UpdatedData || Object.keys(UpdatedData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "balanceID and UpdatedData are required"
+      });
+    }
+
+    const [updatedRows, updatedBalances] = await Balance.update(UpdatedData, {
       where: { id: balanceID },
-      returning: true,
+      returning: true
     });
 
     if (updatedRows === 0) {
-      return res.status(404).json({ success: false, message: "Balance Record not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Balance Record not found"
+      });
     }
 
     return res.status(200).json({
       success: true,
       message: "Balance Record updated successfully",
-      data: updatedBalance,
+      data: updatedBalances[0]
     });
+
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 };
+
 
 // ==================== Delete Balance ====================
 export const HandleDeleteBalance = async (req, res) => {

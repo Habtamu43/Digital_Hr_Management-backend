@@ -13,22 +13,195 @@ import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
 
-// Get all employees (HR-Admin only)
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllEmployees);
+/**
+ * @swagger
+ * tags:
+ *   name: Employee
+ *   description: Employee management endpoints
+ */
 
-// Get all employee IDs (HR-Admin only)
-router.get("/all-employees-ids", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllEmployeesIDS);
+/**
+ * ===============================
+ * Get All Employees (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/all:
+ *   get:
+ *     summary: Retrieve all employees (HR-Admin only)
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all employees retrieved successfully
+ */
+router.get(
+  "/all",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleAllEmployees
+);
 
-// Employee updates own info
-router.patch("/update-employee", VerifyEmployeeToken, HandleEmployeeUpdate);
+/**
+ * ===============================
+ * Get All Employee IDs (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/all-employees-ids:
+ *   get:
+ *     summary: Retrieve all employee IDs (HR-Admin only)
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of employee IDs retrieved successfully
+ */
+router.get(
+  "/all-employees-ids",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleAllEmployeesIDS
+);
 
-// Delete an employee (HR-Admin only)
-router.delete("/delete-employee/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeDelete);
+/**
+ * ===============================
+ * Get Employee Details by HR (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/by-HR/{employeeId}:
+ *   get:
+ *     summary: Retrieve details of a specific employee (HR-Admin only)
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: employeeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Employee details retrieved successfully
+ *       404:
+ *         description: Employee not found
+ */
+router.get(
+  "/by-HR/:employeeId",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleEmployeeByHR
+);
 
-// Get employee details by HR (HR-Admin only)
-router.get("/by-HR/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeByHR);
+/**
+ * ===============================
+ * Get Own Employee Details
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/by-employee:
+ *   get:
+ *     summary: Retrieve own employee details
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Employee details retrieved successfully
+ */
+router.get(
+  "/by-employee",
+  VerifyEmployeeToken,
+  HandleEmployeeByEmployee
+);
 
-// Get own employee details
-router.get("/by-employee", VerifyEmployeeToken, HandleEmployeeByEmployee);
+/**
+ * ===============================
+ * Update Employee
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/update-employee:
+ *   patch:
+ *     summary: Employee updates own information
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - employeeID
+ *               - UpdatedData
+ *             properties:
+ *               employeeID:
+ *                 type: integer
+ *                 example: 1
+ *               UpdatedData:
+ *                 type: object
+ *                 example:
+ *                   firstname: John
+ *                   lastname: Doe
+ *                   contactnumber: "0912345678"
+ *                   email: john.doe@example.com
+ *     responses:
+ *       200:
+ *         description: Employee updated successfully
+ *       400:
+ *         description: Invalid data
+ *       404:
+ *         description: Employee not found
+ */
+router.patch(
+  "/update-employee",
+  VerifyEmployeeToken,
+  HandleEmployeeUpdate
+);
+
+/**
+ * ===============================
+ * Delete Employee
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/employee/delete-employee/{employeeId}:
+ *   delete:
+ *     summary: Delete an employee (HR-Admin only)
+ *     tags: [Employee]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: employeeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Employee deleted successfully
+ *       404:
+ *         description: Employee not found
+ */
+router.delete(
+  "/delete-employee/:employeeId",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleEmployeeDelete
+);
 
 export default router;

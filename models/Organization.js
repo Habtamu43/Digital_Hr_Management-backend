@@ -31,14 +31,14 @@ const Organization  = (sequelize, DataTypes) => {
   // Associations
   Organization.associate = (models) => {
     Organization.hasMany(models.Employee, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'employees',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
 
     Organization.hasMany(models.HumanResources, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'HRs',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',

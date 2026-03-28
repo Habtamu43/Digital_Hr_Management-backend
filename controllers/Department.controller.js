@@ -1,185 +1,143 @@
 import db from "../config/db.js";
 
-const { Employee ,Department  } = db
+const { Employee, Department } = db;
 
-// Create Department
+/* ===================== CREATE DEPARTMENT ===================== */
 export const HandleCreateDepartment = async (req, res) => {
-    try {
-        const { name, description } = req.body;
+  try {
+    const { departmentName, description } = req.body;
 
-        if (!name || !description) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
-        }
-
-        const department = await Department.findOne({ where: { name, organizationID: req.ORGID } });
-
-        if (department) {
-            return res.status(400).json({ success: false, message: "Department already exists" });
-        }
-
-        const newDepartment = await Department.create({
-            name,
-            description,
-            organizationID: req.ORGID
-        });
-
-        return res.status(200).json({
-            success: true,
-            message: "Department created successfully",
-            data: newDepartment,
-            type: "CreateDepartment"
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+    if (!departmentName || !description) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
+
+    const existing = await Department.findOne({
+      where: { name: departmentName, organizationId: req.organizationId },
+    });
+
+    if (existing) {
+      return res.status(400).json({ success: false, message: "Department already exists" });
+    }
+
+    const newDepartment = await Department.create({
+      name: departmentName,
+      description,
+      organizationId: req.organizationId,
+    });
+
+    return res.status(201).json({ success: true, message: "Department created successfully", data: newDepartment });
+  } catch (error) {
+    console.error("CREATE DEPARTMENT ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
 };
 
-// Get All Departments
+/* ===================== GET ALL DEPARTMENTS ===================== */
 export const HandleAllDepartments = async (req, res) => {
-    try {
-        const departments = await Department.findAll({
-            where: { organizationID: req.ORGID },
-            include: [
-                { model: Employee, as: "employees", attributes: ["id", "firstname", "lastname", "email", "contactnumber", "title"] },
-                // Add other associations like notice, HumanResources if defined
-            ]
-        });
+  try {
+    const departments = await Department.findAll({
+      where: { organizationId: req.organizationId },
+      include: [
+        {
+          model: Employee,
+          as: "employees", // ✅ must match Department model alias exactly
+          attributes: ["id", "firstname", "lastname", "email", "contactnumber"],
+        },
+      ],
+    });
 
-        return res.status(200).json({
-            success: true,
-            message: "All departments retrieved successfully",
-            data: departments,
-            type: "AllDepartments"
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-    }
+    return res.status(200).json({ success: true, message: "All departments retrieved successfully", data: departments });
+  } catch (error) {
+    console.error("GET ALL DEPARTMENTS ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
 };
 
-// Get Single Department
+/* ===================== GET SINGLE DEPARTMENT ===================== */
 export const HandleDepartment = async (req, res) => {
-    try {
-        const { departmentID } = req.params;
+  try {
+    const { departmentID } = req.params;
 
-        const department = await Department.findOne({
-            where: { id: departmentID, organizationID: req.ORGID },
-            include: [{ model: Employee, as: "employees" }]
-        });
+    const department = await Department.findOne({
+      where: { id: departmentID, organizationId: req.organizationId },
+      include: [{ model: Employee, as: "employees" }],
+    });
 
-        if (!department) {
-            return res.status(404).json({ success: false, message: "Department not found" });
-        }
+    if (!department) return res.status(404).json({ success: false, message: "Department not found" });
 
-        return res.status(200).json({
-            success: true,
-            message: department.name,
-            data: department,
-            type: "GetDepartment"
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-    }
+    return res.status(200).json({ success: true, message: "Department retrieved successfully", data: department });
+  } catch (error) {
+    console.error("GET DEPARTMENT ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
 };
 
-// Update Department
+/* ===================== UPDATE DEPARTMENT ===================== */
 export const HandleUpdateDepartment = async (req, res) => {
-    try {
-        const { departmentID, UpdatedDepartment, employeeIDArray } = req.body;
+  try {
+    const { departmentID, UpdatedDepartment, employeeIDArray } = req.body;
 
-        const department = await Department.findOne({ where: { id: departmentID, organizationID: req.ORGID } });
+    const department = await Department.findOne({
+      where: { id: departmentID, organizationId: req.organizationId },
+      include: [{ model: Employee, as: "employees" }],
+    });
 
-        if (!department) {
-            return res.status(404).json({ success: false, message: "Department not found" });
-        }
+    if (!department) return res.status(404).json({ success: false, message: "Department not found" });
 
-        // Add employees to department
-        if (employeeIDArray && employeeIDArray.length > 0) {
-            const existingEmployeeIds = (await department.getEmployees()).map(emp => emp.id);
+    // Add employees
+    if (Array.isArray(employeeIDArray) && employeeIDArray.length > 0) {
+      const existingIds = department.employees.map(emp => emp.id);
 
-            const selectedEmployees = employeeIDArray.filter(id => !existingEmployeeIds.includes(id));
-            const rejectedEmployees = employeeIDArray.filter(id => existingEmployeeIds.includes(id));
+      const newEmployees = employeeIDArray.filter(id => !existingIds.includes(id));
+      const rejectedEmployees = employeeIDArray.filter(id => existingIds.includes(id));
 
-            if (rejectedEmployees.length > 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Some Employees Already Belong To ${department.name} Department`,
-                    EmployeeList: rejectedEmployees
-                });
-            }
-
-            // Add selected employees
-            await department.addEmployees(selectedEmployees);
-
-            // Update Employee records
-            await Employee.update(
-                { departmentID: departmentID },
-                { where: { id: selectedEmployees } }
-            );
-
-            return res.status(200).json({
-                success: true,
-                message: `Employees added successfully to ${department.name} Department`,
-                data: department,
-                type: "DepartmentEMUpdate"
-            });
-        }
-
-        // Update department fields
-        const updatedDept = await department.update(UpdatedDepartment);
-
-        return res.status(200).json({
-            success: true,
-            message: "Department updated successfully",
-            data: updatedDept,
-            type: "DepartmentDEUpdate"
+      if (rejectedEmployees.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Some employees already belong to ${department.name}`,
+          EmployeeList: rejectedEmployees,
         });
+      }
 
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+      if (newEmployees.length > 0) {
+        await department.addEmployees(newEmployees);
+        await Employee.update({ departmentID }, { where: { id: newEmployees } });
+      }
     }
+
+    // Update department info
+    const updatedDept = await department.update(UpdatedDepartment);
+
+    return res.status(200).json({ success: true, message: "Department updated successfully", data: updatedDept });
+  } catch (error) {
+    console.error("UPDATE DEPARTMENT ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
 };
 
-// Delete Department / Remove Employees
+/* ===================== DELETE DEPARTMENT ===================== */
 export const HandleDeleteDepartment = async (req, res) => {
-    try {
-        const { departmentID, employeeIDArray, action } = req.body;
+  try {
+    const { departmentID, employeeIDArray, action } = req.body;
 
-        const department = await Department.findOne({ where: { id: departmentID } });
+    const department = await Department.findOne({ where: { id: departmentID } });
+    if (!department) return res.status(404).json({ success: false, message: "Department not found" });
 
-        if (!department) {
-            return res.status(404).json({ success: false, message: "Department not found" });
-        }
-
-        if (action === "delete-department") {
-            // Remove department from employees
-            await Employee.update(
-                { departmentID: null },
-                { where: { departmentID: departmentID } }
-            );
-
-            await department.destroy();
-
-            return res.status(200).json({ success: true, message: "Department deleted successfully" });
-        }
-
-        if (action === "delete-employee") {
-            // Remove specific employees from department
-            await department.removeEmployees(employeeIDArray);
-
-            await Employee.update(
-                { departmentID: null },
-                { where: { id: employeeIDArray } }
-            );
-
-            return res.status(200).json({ success: true, message: "Employees removed successfully", type: "RemoveEmployeeDE" });
-        }
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+    if (action === "delete-department") {
+      await Employee.update({ departmentID: null }, { where: { departmentID } });
+      await department.destroy();
+      return res.status(200).json({ success: true, message: "Department deleted successfully" });
     }
+
+    if (action === "delete-employee" && Array.isArray(employeeIDArray)) {
+      await department.removeEmployees(employeeIDArray);
+      await Employee.update({ departmentID: null }, { where: { id: employeeIDArray } });
+      return res.status(200).json({ success: true, message: "Employees removed successfully" });
+    }
+
+    return res.status(400).json({ success: false, message: "Invalid action" });
+  } catch (error) {
+    console.error("DELETE DEPARTMENT ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+  }
 };
