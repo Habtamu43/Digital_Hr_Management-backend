@@ -22,6 +22,8 @@ import InterviewInsightRouter from "./routes/InterviewInsights.route.js";
 import GenerateRequestRouter from "./routes/GenerateRequest.route.js";
 import CorporateCalendarRouter from "./routes/CorporateCalendar.route.js";
 import BalanceRouter from "./routes/Balance.route.js";
+// Swagger
+import { swaggerUi, swaggerSpec } from "./swagger.js";
 
 dotenv.config();
 const app = express();
@@ -30,6 +32,12 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
+
+/* =======================
+   Swagger Documentation
+======================= */
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // debugging 
 app.use((req, res, next) => {

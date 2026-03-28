@@ -12,15 +12,15 @@ const HumanResources = (sequelize, DataTypes) => {
     },
     password: { type: DataTypes.STRING, allowNull: false },
     role: { type: DataTypes.ENUM('HR-Admin'), allowNull: false },
-    organizationID: { type: DataTypes.INTEGER },
-    departmentID: { type: DataTypes.INTEGER },
+    organizationId: { type: DataTypes.INTEGER },
+    departmentId: { type: DataTypes.INTEGER },
 
     // Verification fields
     isverified: { type: DataTypes.BOOLEAN, defaultValue: false },
     verificationotp: { type: DataTypes.STRING, allowNull: true },
     verificationotpexpires: { type: DataTypes.DATE, allowNull: true },
 
-    // ✅ Reset password fields
+    // Reset password fields
     resetpasswordtoken: { type: DataTypes.STRING, allowNull: true },
     resetpasswordexpires: { type: DataTypes.DATE, allowNull: true },
   }, {
@@ -28,9 +28,10 @@ const HumanResources = (sequelize, DataTypes) => {
     tableName: 'HumanResources',
   });
 
+  // ✅ Associations
   HumanResources.associate = (models) => {
-    HumanResources.belongsTo(models.Organization, { foreignKey: 'organizationID', as: 'organization' });
-    HumanResources.belongsTo(models.Department, { foreignKey: 'departmentID', as: 'department' });
+    HumanResources.belongsTo(models.Organization, { foreignKey: 'organizationId', as: 'organization' });
+    HumanResources.belongsTo(models.Department, { foreignKey: 'departmentId', as: 'department' }); // FIXED here
     HumanResources.hasMany(models.Notice, { foreignKey: 'createdByID', as: 'notices' });
   };
 

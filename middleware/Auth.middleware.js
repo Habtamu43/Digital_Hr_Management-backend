@@ -1,101 +1,90 @@
-// Auth.middleware.js
 import jwt from "jsonwebtoken";
 
-// ==================== Employee Token Verification ====================
+/* ===================== EMPLOYEE TOKEN ===================== */
 export const VerifyEmployeeToken = (req, res, next) => {
   try {
-    let token;
+    const authHeader = req.headers.authorization;
 
-    // 1️⃣ Check cookie first
-    if (req.cookies?.EMtoken) {
-      token = req.cookies.EMtoken;
-    }
+    // Get token from cookie or Authorization header
+    const token =
+      req.cookies?.EMtoken ||
+      (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
 
-    // 2️⃣ Fallback: check Authorization header
-    if (!token && req.headers.authorization) {
-      token = req.headers.authorization.split(" ")[1]; // Bearer <token>
-    }
-
-    // 3️⃣ No token provided
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized access: no token provided",
+        message: "Authentication required",
         gologin: true,
       });
     }
 
-    // 4️⃣ Verify JWT
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthenticated employee",
-        gologin: true,
-      });
-    }
 
-    // 5️⃣ Set request properties for controller
+    console.log("Organization ID from HR token:", decoded.organizationId);
+    // Attach decoded values to req object
     req.EMid = decoded.EMid;
     req.EMrole = decoded.EMrole;
-    req.ORGID = decoded.ORGID;
+    req.organizationId = decoded.organizationId; // ✅ standardized
+
+    // Ensure organizationId exists
+    if (!req.organizationId) {
+      return res.status(401).json({
+        success: false,
+        message: "Organization ID missing in token",
+        gologin: true,
+      });
+    }
 
     next();
   } catch (error) {
-    console.error("VERIFY EMPLOYEE TOKEN ERROR:", error.message);
     return res.status(401).json({
       success: false,
-      message: "Unauthorized access: invalid token",
+      message: "Invalid or expired token",
       gologin: true,
     });
   }
 };
 
-// ==================== HR Token Verification ====================
-export const VerifyHRToken = (req, res, next) => {
+/* ===================== HR TOKEN ===================== */
+// Corrected middleware name
+export const VerifyhHRToken = (req, res, next) => {
   try {
-    let token;
+    const authHeader = req.headers.authorization;
+    const token =
+      req.cookies?.HRtoken ||
+      (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
 
-    // 1️⃣ Check cookie first
-    if (req.cookies?.HRtoken) {
-      token = req.cookies.HRtoken;
-    }
-
-    // 2️⃣ Fallback: check Authorization header
-    if (!token && req.headers.authorization) {
-      token = req.headers.authorization.split(" ")[1]; // Bearer <token>
-    }
-
-    // 3️⃣ No token provided
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized access: no HR token provided",
+        message: "Authentication required",
         gologin: true,
       });
     }
 
-    // 4️⃣ Verify JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthenticated HR",
-        gologin: true,
-      });
-    }
 
-    // 5️⃣ Set request properties for controller
+    console.log("Decoded HR token:", decoded);
+
     req.HRid = decoded.HRid;
     req.HRrole = decoded.HRrole;
-    req.ORGID = decoded.ORGID;
+    req.organizationId = decoded.organizationId;
+
+    if (!req.organizationId) {
+      return res.status(401).json({
+        success: false,
+        message: "Organization ID missing in token",
+        gologin: true,
+      });
+    }
 
     next();
   } catch (error) {
-    console.error("VERIFY HR TOKEN ERROR:", error.message);
+    console.error("HR token error:", error);
     return res.status(401).json({
       success: false,
-      message: "Unauthorized access: invalid HR token",
+      message: "Invalid or expired token",
       gologin: true,
     });
   }

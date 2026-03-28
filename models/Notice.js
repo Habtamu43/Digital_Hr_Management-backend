@@ -1,83 +1,82 @@
 'use strict';
 
-const Notice  = (sequelize, DataTypes) => {
+const Notice = (sequelize, DataTypes) => {
   const Notice = sequelize.define('Notice', {
     title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
     content: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
     audience: {
-      type: DataTypes.ENUM('Department-Specific', 'Employee-Specific'),
+      type: DataTypes.ENUM('All', 'Department-Specific', 'Employee-Specific'),
       allowNull: false,
     },
-    departmentID: {
+
+    departmentId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Departments',
-        key: 'id',
-      },
+      field: "departmentId",
+      references: { model: 'Departments', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    employeeID: {
+
+    employeeId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Employees',
-        key: 'id',
-      },
+      field: "employeeId",
+      references: { model: 'Employees', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    createdByID: {
+
+    // ✅ FIXED (IMPORTANT)
+    createdById: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'HumanResources',
-        key: 'id',
-      },
+      field: "createdByID", // maps to your DB column
+      references: { model: 'HumanResources', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
-    organizationID: {
+
+    organizationId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Organizations',
-        key: 'id',
-      },
+      field: "organizationId",
+      references: { model: 'Organizations', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
   }, {
-    timestamps: true,
     tableName: 'Notices',
+    timestamps: true,
   });
 
-  // ✅ Associations
   Notice.associate = (models) => {
     Notice.belongsTo(models.Department, {
-      foreignKey: 'departmentID',
+      foreignKey: 'departmentId',
       as: 'department',
     });
 
     Notice.belongsTo(models.Employee, {
-      foreignKey: 'employeeID',
+      foreignKey: 'employeeId',
       as: 'employee',
     });
 
+    // ✅ FIXED (use createdById consistently)
     Notice.belongsTo(models.HumanResources, {
-      foreignKey: 'createdByID',
+      foreignKey: 'createdById',
       as: 'createdBy',
     });
 
     Notice.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
   };
@@ -85,4 +84,4 @@ const Notice  = (sequelize, DataTypes) => {
   return Notice;
 };
 
-export default Notice
+export default Notice;

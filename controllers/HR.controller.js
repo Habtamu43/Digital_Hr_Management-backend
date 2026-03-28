@@ -8,7 +8,7 @@ const { Department , HumanResources,  Organization } =db
 export const HandleAllHR = async (req, res) => {
     try {
         const HR = await HumanResources.findAll({
-            where: { organizationId: req.ORGID },
+            where: { organizationId: req.organizationId },
             include: [
                 { model: Department, attributes: ["name"] }
             ]
@@ -25,7 +25,7 @@ export const HandleHR = async (req, res) => {
     try {
         const { HRID } = req.params;
         const HR = await HumanResources.findOne({
-            where: { id: HRID, organizationId: req.ORGID },
+            where: { id: HRID, organizationId: req.organizationId },
             include: [{ model: Department, attributes: ["name"] }]
         });
 
@@ -50,7 +50,7 @@ export const HandleUpdateHR = async (req, res) => {
 
         const updatedHR = await HumanResources.findByPk(HRID);
 
-        if (!updatedHR || updatedHR.organizationId !== req.ORGID) {
+        if (!updatedHR || updatedHR.organizationId !== req.organizationId) {
             return res.status(404).json({ success: false, message: "HR Record Not Found" });
         }
 
@@ -67,7 +67,7 @@ export const HandleDeleteHR = async (req, res) => {
     try {
         const { HRID } = req.params;
 
-        const HR = await HumanResources.findOne({ where: { id: HRID, organizationId: req.ORGID } });
+        const HR = await HumanResources.findOne({ where: { id: HRID, organizationId: req.organizationId } });
 
         if (!HR) {
             return res.status(404).json({ success: false, message: "HR Record Not Found" });
@@ -82,7 +82,7 @@ export const HandleDeleteHR = async (req, res) => {
         }
 
         // Remove HR from Organization
-        const organization = await Organization.findByPk(req.ORGID);
+        const organization = await Organization.findByPk(req.organizationId);
         if (organization) {
             await organization.removeHR(HR); // Sequelize association
         }

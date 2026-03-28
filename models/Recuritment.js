@@ -10,7 +10,7 @@ const  Recruitment  = (sequelize,DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false, // required: true
     },
-    departmentID: {
+    departmentId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Departments', // must match the Department model table name
@@ -19,7 +19,7 @@ const  Recruitment  = (sequelize,DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    organizationID: {
+    organizationId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Organizations', // must match the Organization model table name
@@ -37,13 +37,13 @@ const  Recruitment  = (sequelize,DataTypes) => {
   Recruitment.associate = (models) => {
     // One recruitment belongs to one department
     Recruitment.belongsTo(models.Department, {
-      foreignKey: 'departmentID',
+      foreignKey: 'departmentId',
       as: 'department',
     });
 
     // One recruitment belongs to one organization
     Recruitment.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
 

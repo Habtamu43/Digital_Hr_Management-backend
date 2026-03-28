@@ -1,56 +1,46 @@
 import db from "../config/db.js";
 
-const { Attendance, Employee } = db
+const { Attendance, Employee } = db;
 
 // ==================== Initialize Attendance ====================
 export const HandleInitializeAttendance = async (req, res) => {
   try {
-    const { employeeID } = req.body;
+    const employeeID = req.EMid; // from JWT middleware
+    const organizationId = req.organizationId;
 
-    if (!employeeID) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    if (!employeeID || !organizationId) {
+      return res.status(401).json({ success: false, message: "Unauthorized request" });
     }
 
     const employee = await Employee.findOne({
-      where: { id: employeeID, organizationId: req.ORGID },
+      where: { id: employeeID, organizationId },
     });
 
-    if (!employee) {
-      return res.status(404).json({ success: false, message: "Employee not found" });
-    }
+    if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
+    if (employee.attendanceId)
+      return res.status(400).json({ success: false, message: "Attendance already initialized" });
 
-    if (employee.attendanceId) {
-      return res.status(400).json({
-        success: false,
-        message: "Attendance Log already initialized for this employee",
-      });
-    }
+    const currentDate = new Date().toISOString().split("T")[0];
 
-    const currentdate = new Date().toISOString().split("T")[0];
-
-    // Create attendance record
     const newAttendance = await Attendance.create({
-      employeeId: employeeID,
+       employeeID: employeeID,  // make sure model maps this to DB column correctly
       status: "Not Specified",
-      organizationId: req.ORGID,
+      organizationId,
       attendancelog: [
-        {
-          logdate: currentdate,
-          logstatus: "Not Specified",
-        },
+        { logdate: currentDate, logstatus: "Not Specified" },
       ],
     });
 
-    // Associate attendance with employee
     employee.attendanceId = newAttendance.id;
     await employee.save();
 
     return res.status(200).json({
       success: true,
-      message: "Attendance Log Initialized Successfully",
+      message: "Attendance initialized successfully",
       data: newAttendance,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
   }
 };
@@ -59,7 +49,7 @@ export const HandleInitializeAttendance = async (req, res) => {
 export const HandleAllAttendance = async (req, res) => {
   try {
     const attendance = await Attendance.findAll({
-      where: { organizationId: req.ORGID },
+      where: { organizationId: req.organizationId },
       include: [
         {
           model: Employee,
@@ -75,21 +65,27 @@ export const HandleAllAttendance = async (req, res) => {
       data: attendance,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
 // ==================== Get Single Attendance ====================
 export const HandleAttendance = async (req, res) => {
   try {
-    const { attendanceID } = req.params;
+    const { attendanceId } = req.params;
 
-    if (!attendanceID) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    if (!attendanceId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Attendance ID is required" });
     }
 
     const attendance = await Attendance.findOne({
-      where: { id: attendanceID, organizationId: req.ORGID },
+      where: { id: attendanceId, organizationId: req.organizationId },
       include: [
         {
           model: Employee,
@@ -100,7 +96,9 @@ export const HandleAttendance = async (req, res) => {
     });
 
     if (!attendance) {
-      return res.status(404).json({ success: false, message: "Attendance not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Attendance not found" });
     }
 
     return res.status(200).json({
@@ -109,57 +107,80 @@ export const HandleAttendance = async (req, res) => {
       data: attendance,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
 // ==================== Update Attendance ====================
+// ===================== Update Attendance =====================
 export const HandleUpdateAttendance = async (req, res) => {
   try {
-    const { attendanceID, status, currentdate } = req.body;
+    const { attendanceId, ...updatedFields } = req.body;
+
+    if (!attendanceId || Object.keys(updatedFields).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "attendanceId and at least one field to update are required",
+      });
+    }
 
     const attendance = await Attendance.findOne({
-      where: { id: attendanceID, organizationId: req.ORGID },
+      where: { id: attendanceId, organizationId: req.organizationId },
     });
 
     if (!attendance) {
       return res.status(404).json({ success: false, message: "Attendance not found" });
     }
 
-    // Find existing log for the date
-    let log = attendance.attendancelog.find(
-      (item) => item.logdate.toISOString().split("T")[0] === currentdate
-    );
-
-    if (log) {
-      log.logstatus = status;
-    } else {
-      attendance.attendancelog.push({ logdate: currentdate, logstatus: status });
+    // Update dynamic fields
+    for (const key in updatedFields) {
+      // For attendancelog updates, you can merge logs by date if needed
+      if (key === "attendancelog" && Array.isArray(updatedFields[key])) {
+        attendance.attendancelog = [...attendance.attendancelog, ...updatedFields[key]];
+      } else {
+        attendance[key] = updatedFields[key];
+      }
     }
 
     await attendance.save();
 
     return res.status(200).json({
       success: true,
-      message: "Attendance status updated successfully",
+      message: "Attendance updated successfully",
       data: attendance,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
 // ==================== Delete Attendance ====================
 export const HandleDeleteAttendance = async (req, res) => {
   try {
-    const { attendanceID } = req.params;
+    const { attendanceId } = req.params;
+
+    if (!attendanceId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Attendance ID is required" });
+    }
 
     const attendance = await Attendance.findOne({
-      where: { id: attendanceID, organizationId: req.ORGID },
+      where: { id: attendanceId, organizationId: req.organizationId },
     });
 
     if (!attendance) {
-      return res.status(404).json({ success: false, message: "Attendance not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Attendance not found" });
     }
 
     // Remove attendance reference from employee
@@ -176,6 +197,10 @@ export const HandleDeleteAttendance = async (req, res) => {
       message: "Attendance record deleted successfully",
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };

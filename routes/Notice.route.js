@@ -1,30 +1,75 @@
 import express from "express";
 import {
-  HandleCreateRecruitment,
-  HandleAllRecruitments,
-  HandleRecruitment,
-  HandleUpdateRecruitment,
-  HandleDeleteRecruitment
-} from "../controllers/Recruitment.controller.js";
+  HandleCreateNotice,
+  HandleAllNotice,
+  HandleNotice,
+  HandleUpdateNotice,
+  HandleDeleteNotice
+} from "../controllers/Notice.controller.js";
 
-import { VerifyHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
 
-// Create a recruitment record (HR-Admin only)
-router.post("/create-recruitment", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleCreateRecruitment);
+/**
+ * ===============================
+ * Create Notice
+ * ===============================
+ */
+router.post(
+  "/create-notice",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleCreateNotice
+);
 
-// Get all recruitment records (HR-Admin only)
-router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllRecruitments);
+/**
+ * ===============================
+ * Get All Notices
+ * ===============================
+ */
+router.get(
+  "/all",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleAllNotice
+);
 
-// Get a specific recruitment record by ID (HR-Admin only)
-router.get("/:recruitmentID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleRecruitment);
+/**
+ * ===============================
+ * Get Single Notice
+ * ===============================
+ */
+router.get(
+  "/:noticeID",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleNotice
+);
 
-// Update a recruitment record (HR-Admin only)
-router.patch("/update-recruitment", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateRecruitment);
+/**
+ * ===============================
+ * Update Notice
+ * ===============================
+ */
+router.patch(
+  "/update-notice",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleUpdateNotice
+);
 
-// Delete a recruitment record by ID (HR-Admin only)
-router.delete("/delete-recruitment/:recruitmentID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteRecruitment);
+/**
+ * ===============================
+ * Delete Notice
+ * ===============================
+ */
+router.delete(
+  "/delete-notice/:noticeID",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleDeleteNotice
+);
 
 export default router;

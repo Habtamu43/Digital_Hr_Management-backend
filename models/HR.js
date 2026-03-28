@@ -66,7 +66,7 @@ const HumanResources = (sequelize,DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    organizationID: {
+    organizationId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -91,7 +91,7 @@ const HumanResources = (sequelize,DataTypes) => {
 
     // HR belongs to an Organization
     HumanResources.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
   };

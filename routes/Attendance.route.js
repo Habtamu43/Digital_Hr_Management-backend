@@ -4,28 +4,181 @@ import {
   HandleAllAttendance,
   HandleAttendance,
   HandleUpdateAttendance,
-  HandleDeleteAttendance
+  HandleDeleteAttendance,
 } from "../controllers/Attendance.controller.js";
 
-import { VerifyEmployeeToken, VerifyHRToken } from "../middleware/Auth.middleware.js";
+import {
+  VerifyEmployeeToken,
+  VerifyhHRToken,
+} from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
 
-// Employee initializes attendance
+/**
+ * @swagger
+ * tags:
+ *   name: Attendance
+ *   description: Attendance management endpoints
+ */
+
+/**
+ * ===============================
+ * Initialize Attendance (Employee Check-In)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/attendance/initialize:
+ *   post:
+ *     summary: Employee checks in
+ *     tags: [Attendance]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - employeeID
+ *             properties:
+ *               employeeID:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Attendance initialized (check-in)
+ */
 router.post("/initialize", VerifyEmployeeToken, HandleInitializeAttendance);
 
-// HR admin views all attendance records
-router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllAttendance);
+/**
+ * ===============================
+ * Get All Attendance (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/attendance/all:
+ *   get:
+ *     summary: HR admin retrieves all attendance records
+ *     tags: [Attendance]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Attendance records retrieved successfully
+ */
+router.get(
+  "/all",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleAllAttendance
+);
 
-// HR admin views specific attendance record
-router.get("/:attendanceID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAttendance);
+/**
+ * ===============================
+ * Get Single Attendance (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/attendance/{attendanceID}:
+ *   get:
+ *     summary: HR admin retrieves a specific attendance record
+ *     tags: [Attendance]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attendanceID
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Attendance record found
+ *       404:
+ *         description: Attendance record not found
+ */
+router.get(
+  "/:attendanceId",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleAttendance
+);
 
-// Employee updates own attendance (e.g., check-out)
+/**
+ * ===============================
+ * Update Attendance (Employee Checkout)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/attendance/update-attendance:
+ *   patch:
+ *     summary: Employee updates own attendance (check-out)
+ *     tags: [Attendance]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - attendanceID
+ *               - checkoutTime
+ *             properties:
+ *               attendanceID:
+ *                 type: integer
+ *                 example: 1
+ *               checkoutTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-12-03T17:40:00Z"
+ *     responses:
+ *       200:
+ *         description: Attendance updated successfully
+ *       400:
+ *         description: Invalid data
+ */
 router.patch("/update-attendance", VerifyEmployeeToken, HandleUpdateAttendance);
 
-// HR admin deletes attendance record
-router.delete("/delete-attendance/:attendanceID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteAttendance);
+/**
+ * ===============================
+ * Delete Attendance (HR-Admin)
+ * ===============================
+ */
+/**
+ * @swagger
+ * /api/v1/attendance/delete-attendance/{attendanceID}:
+ *   delete:
+ *     summary: HR admin deletes an attendance record
+ *     tags: [Attendance]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attendanceID
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Attendance deleted successfully
+ *       404:
+ *         description: Attendance record not found
+ */
+router.delete(
+  "/delete-attendance/:attendanceId",
+  VerifyhHRToken,
+  RoleAuthorization("HR-Admin"),
+  HandleDeleteAttendance
+);
 
 export default router;
-

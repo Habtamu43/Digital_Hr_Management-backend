@@ -1,12 +1,12 @@
 'use strict';
 
-const Leave = (sequelize,DataTypes) => {
+const Leave = (sequelize, DataTypes) => {
   const Leave = sequelize.define('Leave', {
-    employeeID: {
+    employeeId: { // changed from employeeID → employeeId
       type: DataTypes.INTEGER,
-      allowNull: false, // required: true
+      allowNull: false,
       references: {
-        model: 'Employees', // must match your Employee table/model
+        model: 'Employees',
         key: 'id',
       },
       onUpdate: 'CASCADE',
@@ -34,7 +34,7 @@ const Leave = (sequelize,DataTypes) => {
       allowNull: false,
       defaultValue: 'Pending',
     },
-    approvedByID: {
+    approvedById: { // changed from approvedByID → approvedById
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -44,7 +44,7 @@ const Leave = (sequelize,DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    organizationID: {
+    organizationId: { // changed from organizationID → organizationId
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -55,27 +55,24 @@ const Leave = (sequelize,DataTypes) => {
       onDelete: 'SET NULL',
     },
   }, {
-    timestamps: true, // adds createdAt and updatedAt
-    tableName: 'Leaves', // PostgreSQL prefers plural table names
+    timestamps: true,
+    tableName: 'Leaves',
   });
 
   // ✅ Associations
   Leave.associate = (models) => {
-    // Each leave belongs to one employee
     Leave.belongsTo(models.Employee, {
-      foreignKey: 'employeeID',
+      foreignKey: 'employeeId',
       as: 'employee',
     });
 
-    // Each leave may be approved by a HumanResources member
     Leave.belongsTo(models.HumanResources, {
-      foreignKey: 'approvedByID',
+      foreignKey: 'approvedById',
       as: 'approvedBy',
     });
 
-    // Each leave belongs to one organization
     Leave.belongsTo(models.Organization, {
-      foreignKey: 'organizationID',
+      foreignKey: 'organizationId',
       as: 'organization',
     });
   };

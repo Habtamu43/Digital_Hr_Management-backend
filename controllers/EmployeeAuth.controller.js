@@ -16,44 +16,51 @@ import { GenerateJwtTokenAndSetCookiesEmployee } from "../utils/generatejwttoken
 import { Op } from "sequelize";
 
 // ================== Employee Signup ==================
+// ================== Employee Signup ==================
 export const HandleEmployeeSignup = async (req, res) => {
     const { firstname, lastname, email, password, contactnumber } = req.body;
 
     try {
+        // Validate required fields
         if (!firstname || !lastname || !email || !password || !contactnumber) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
-        const organization = await Organization.findByPk(req.ORGID);
+        // Get organization from admin/session (req.ORGID set by middleware)
+        const organization = await Organization.findByPk(req.organizationId);
         if (!organization) {
             return res.status(404).json({ success: false, message: "Organization not found" });
         }
 
-        const existingEmployee = await Employee.findOne({ where: { email } });
+        // Check if employee already exists
+        const existingEmployee = await Employee.findOne({ where: { email, organizationId: organization.id } });
         if (existingEmployee) {
             return res.status(400).json({ success: false, message: "Employee already exists" });
         }
 
+        // Hash password and generate verification code
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationcode = GenerateVerificationToken(6);
 
+        // Create new employee linked to organization
         const newEmployee = await Employee.create({
-            firstname,
-            lastname,
-            email,
-            password: hashedPassword,
-            contactnumber,
-            role: "Employee",
-            verificationtoken: verificationcode,
-            verificationtokenexpires: new Date(Date.now() + 5 * 60 * 1000),
-            organizationId: organization.id
+              firstname,
+              lastname,
+              email,
+              password: hashedPassword,
+              contactnumber,
+              role: "Employee",
+              verificationToken: verificationcode,
+              verificationTokenExpires: new Date(Date.now() + 5 * 60 * 1000),
+              organizationId: organization.id
         });
 
-        // Optional: associate employee with organization (if association exists in Sequelize)
+        // Optional: associate employee with organization
         if (organization.addEmployee) {
             await organization.addEmployee(newEmployee);
         }
 
+        // Send verification email
         await SendVerificationEmail(email, verificationcode);
 
         return res.status(201).json({
@@ -74,19 +81,22 @@ export const HandleEmployeeVerifyEmail = async (req, res) => {
     try {
         const employee = await Employee.findOne({
             where: {
-                verificationtoken: verificationcode,
-                verificationtokenexpires: { [Op.gt]: new Date() },
-                organizationId: req.ORGID
+                verificationToken: verificationcode,
+                verificationTokenExpires: { [Op.gt]: new Date() },
+                organizationId: req.organizationId
             }
         });
 
         if (!employee) {
-            return res.status(404).json({ success: false, message: "Invalid or expired verification code" });
+            return res.status(404).json({ 
+                success: false, 
+                message: "Invalid or expired verification code" 
+            });
         }
 
-        employee.isverified = true;
-        employee.verificationtoken = null;
-        employee.verificationtokenexpires = null;
+        employee.isVerified = true;
+        employee.verificationToken = null;
+        employee.verificationTokenExpires = null;
         await employee.save();
 
         await SendWelcomeEmail(employee.email, employee.firstname, employee.lastname);
@@ -98,7 +108,12 @@ export const HandleEmployeeVerifyEmail = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal server error", error });
+        console.error("HandleEmployeeVerifyEmail error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error", 
+            error 
+        });
     }
 };
 
@@ -109,11 +124,11 @@ export const HandleResetEmployeeVerifyEmail = async (req, res) => {
     try {
         const employee = await Employee.findOne({ where: { email } });
         if (!employee) return res.status(404).json({ success: false, message: "Employee email does not exist" });
-        if (employee.isverified) return res.status(400).json({ success: false, message: "Email already verified" });
+        if (employee.isVerified) return res.status(400).json({ success: false, message: "Email already verified" });
 
         const verificationcode = GenerateVerificationToken(6);
-        employee.verificationtoken = verificationcode;
-        employee.verificationtokenexpires = new Date(Date.now() + 5 * 60 * 1000);
+        employee.verificationToken = verificationcode;
+        employee.verificationTokenExpires = new Date(Date.now() + 5 * 60 * 1000);
         await employee.save();
 
         await SendVerificationEmail(email, verificationcode);
@@ -150,7 +165,7 @@ export const HandleEmployeeLogin = async (req, res) => {
 // ================== Check Employee Login ==================
 export const HandleEmployeeCheck = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ where: { id: req.EMid, organizationId: req.ORGID } });
+        const employee = await Employee.findOne({ where: { id: req.EMid, organizationId: req.organizationId } });
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
 
         return res.status(200).json({ success: true, message: "Employee is logged in" });
@@ -175,12 +190,12 @@ export const HandleEmployeeForgotPassword = async (req, res) => {
     const { email } = req.body;
 
     try {
-        const employee = await Employee.findOne({ where: { email, organizationId: req.ORGID } });
+        const employee = await Employee.findOne({ where: { email, organizationId: req.organizationId } });
         if (!employee) return res.status(404).json({ success: false, message: "Email not found" });
 
         const resetToken = crypto.randomBytes(25).toString("hex");
-        employee.resetpasswordtoken = resetToken;
-        employee.resetpasswordexpires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+        employee.resetPasswordToken = resetToken;
+        employee.resetPasswordExpires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
         await employee.save();
 
         const URL = `${process.env.CLIENT_URL}/auth/employee/resetpassword/${resetToken}`;
@@ -203,16 +218,16 @@ export const HandleEmployeeSetPassword = async (req, res) => {
 
         const employee = await Employee.findOne({
             where: {
-                resetpasswordtoken: token,
-                resetpasswordexpires: { [Op.gt]: new Date() }
+                resetPasswordToken: token,
+                resetPasswordExpires: { [Op.gt]: new Date() }
             }
         });
 
         if (!employee) return res.status(404).json({ success: false, message: "Invalid or expired token" });
 
         employee.password = await bcrypt.hash(password, 10);
-        employee.resetpasswordtoken = null;
-        employee.resetpasswordexpires = null;
+        employee.resetPasswordToken = null;
+        employee.resetPasswordExpires = null;
         await employee.save();
 
         await SendResetPasswordConfirmation(employee.email);
@@ -227,11 +242,11 @@ export const HandleEmployeeSetPassword = async (req, res) => {
 // ================== Check Email Verification ==================
 export const HandleEmployeeCheckVerifyEmail = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ where: { id: req.EMid, organizationId: req.ORGID } });
+        const employee = await Employee.findOne({ where: { id: req.EMid, organizationId: req.organizationId } });
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
 
-        if (employee.isverified) return res.status(200).json({ success: true, message: "Employee already verified" });
-        if (employee.verificationtoken && employee.verificationtokenexpires > new Date())
+        if (employee.isVerified) return res.status(200).json({ success: true, message: "Employee already verified" });
+        if (employee.verificationToken && employee.verificationTokenExpires > new Date())
             return res.status(200).json({ success: true, message: "Verification code is still valid" });
 
         return res.status(400).json({ success: false, message: "Invalid or expired verification code" });
