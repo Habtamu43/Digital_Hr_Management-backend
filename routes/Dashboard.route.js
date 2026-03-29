@@ -1,6 +1,6 @@
 import express from "express";
 import { HandleHRDashboard } from "../controllers/Dashboard.controller.js";
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -45,7 +45,7 @@ const router = express.Router();
  */
 router.get(
   "/HR-dashboard",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRDashboard
 );

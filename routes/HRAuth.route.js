@@ -11,7 +11,7 @@ import {
   HandleHRCheckVerifyEmail,
 } from "../controllers/HRAuth.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -213,35 +213,35 @@ router.post("/resend-verification-public", HandleHRResendVerificationEmail);
 
 router.post(
   "/verify-email",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRVerifyEmail,
 );
 
 router.post(
   "/resend-verify-email",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRResendVerificationEmail,
 );
 
 router.get(
   "/check-login",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRCheck,
 );
 
 router.get(
   "/check-verify-email",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRCheckVerifyEmail,
 );
 
 router.post(
   "/logout",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHRLogout,
 );

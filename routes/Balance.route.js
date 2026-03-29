@@ -7,7 +7,7 @@ import {
   HandleDeleteBalance
 } from "../controllers/Balance.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -66,7 +66,7 @@ const router = express.Router();
  */
 router.post(
   "/add-balance",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleCreateBalance
 );
@@ -90,7 +90,7 @@ router.post(
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllBalances
 );
@@ -123,7 +123,7 @@ router.get(
  */
 router.get(
   "/:balanceID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleBalance
 );
@@ -171,7 +171,7 @@ router.get(
  */
 router.patch(
   "/update-balance",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateBalance
 );
@@ -204,7 +204,7 @@ router.patch(
  */
 router.delete(
   "/delete-balance/:balanceID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteBalance
 );

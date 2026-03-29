@@ -6,7 +6,7 @@ import {
   HandleUpdateHR
 } from "../controllers/HR.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -36,7 +36,7 @@ const router = express.Router();
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllHR
 );
@@ -63,7 +63,7 @@ router.get(
  */
 router.get(
   "/:HRID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleHR
 );
@@ -100,7 +100,7 @@ router.get(
  */
 router.patch(
   "/update-HR",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateHR
 );
@@ -127,7 +127,7 @@ router.patch(
  */
 router.delete(
   "/delete-HR/:HRID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteHR
 );

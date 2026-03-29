@@ -7,7 +7,7 @@ import {
   HandleDeleteInterview
 } from "../controllers/InterviewInsights.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -65,7 +65,7 @@ const router = express.Router();
  *       201:
  *         description: Interview created successfully
  */
-router.post("/create-interview", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateInterview);
+router.post("/create-interview", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleCreateInterview);
 
 /**
  * ===============================
@@ -84,7 +84,7 @@ router.post("/create-interview", VerifyhHRToken, RoleAuthorization("HR-Admin"), 
  *       200:
  *         description: List of all interviews
  */
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllInterviews);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllInterviews);
 
 /**
  * ===============================
@@ -112,7 +112,7 @@ router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllInter
  *       404:
  *         description: Interview not found
  */
-router.get("/:interviewID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleInterview);
+router.get("/:interviewID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleInterview);
 
 /**
  * ===============================
@@ -154,7 +154,7 @@ router.get("/:interviewID", VerifyhHRToken, RoleAuthorization("HR-Admin"), Handl
  *       404:
  *         description: Interview not found
  */
-router.patch("/update-interview", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateInterview);
+router.patch("/update-interview", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateInterview);
 
 /**
  * ===============================
@@ -182,6 +182,6 @@ router.patch("/update-interview", VerifyhHRToken, RoleAuthorization("HR-Admin"),
  *       404:
  *         description: Interview not found
  */
-router.delete("/delete-interview/:interviewID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteInterview);
+router.delete("/delete-interview/:interviewID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteInterview);
 
 export default router;

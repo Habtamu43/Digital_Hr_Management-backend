@@ -7,7 +7,7 @@ import {
   HandleDeleteSalary
 } from "../controllers/Salary.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -55,7 +55,7 @@ const router = express.Router();
  *       201:
  *         description: Salary record created successfully
  */
-router.post("/create-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary);
+router.post("/create-salary", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary);
 
 /**
  * @swagger
@@ -69,7 +69,7 @@ router.post("/create-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), Han
  *       200:
  *         description: List of all salary records
  */
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary);
 
 /**
  * @swagger
@@ -92,7 +92,7 @@ router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllSalar
  *       404:
  *         description: Salary record not found
  */
-router.get("/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleSalary);
+router.get("/:salaryID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleSalary);
 
 /**
  * @swagger
@@ -127,7 +127,7 @@ router.get("/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleSa
  *       404:
  *         description: Salary record not found
  */
-router.patch("/update-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary);
+router.patch("/update-salary", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary);
 
 /**
  * @swagger
@@ -150,6 +150,6 @@ router.patch("/update-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), Ha
  *       404:
  *         description: Salary record not found
  */
-router.delete("/delete-salary/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary);
+router.delete("/delete-salary/:salaryID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary);
 
 export default router;

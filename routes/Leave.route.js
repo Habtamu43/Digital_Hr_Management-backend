@@ -8,7 +8,7 @@ import {
   HandleUpdateLeaveByHR
 } from "../controllers/Leave.controller.js";
 
-import { VerifyEmployeeToken, VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyEmployeeToken, VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -86,7 +86,7 @@ router.post("/create-leave", VerifyEmployeeToken, HandleCreateLeave);
  *       200:
  *         description: List of all leave requests
  */
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllLeaves);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllLeaves);
 
 /**
  * ===============================
@@ -114,7 +114,7 @@ router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllLeave
  *       404:
  *         description: Leave request not found
  */
-router.get("/:leaveID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleLeave);
+router.get("/:leaveID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleLeave);
 
 /**
  * ===============================
@@ -193,7 +193,7 @@ router.patch("/employee-update-leave", VerifyEmployeeToken, HandleUpdateLeaveByE
  *       404:
  *         description: Leave request not found
  */
-router.patch("/HR-update-leave", VerifyhHRToken, RoleAuthorization("HR-Admin"),   HandleUpdateLeaveByHR);
+router.patch("/HR-update-leave", VerifyHRToken, RoleAuthorization("HR-Admin"),   HandleUpdateLeaveByHR);
 
 /**
  * ===============================

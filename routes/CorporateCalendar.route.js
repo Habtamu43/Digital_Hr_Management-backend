@@ -7,7 +7,7 @@ import {
   HandleUpdateEvent
 } from "../controllers/CorporateCalendar.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -59,7 +59,7 @@ const router = express.Router();
  */
 router.post(
   "/create-event",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleCreateEvent
 );
@@ -83,7 +83,7 @@ router.post(
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllEvents
 );
@@ -116,7 +116,7 @@ router.get(
  */
 router.get(
   "/:eventID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleEvent
 );
@@ -163,7 +163,7 @@ router.get(
  */
 router.patch(
   "/update-event",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateEvent
 );
@@ -196,7 +196,7 @@ router.patch(
  */
 router.delete(
   "/delete-event/:eventID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteEvent
 );

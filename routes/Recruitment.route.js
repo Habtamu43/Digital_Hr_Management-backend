@@ -7,7 +7,7 @@ import {
   HandleDeleteRecruitment
 } from "../controllers/Recruitment.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -55,7 +55,7 @@ const router = express.Router();
  *       201:
  *         description: Recruitment record created successfully
  */
-router.post("/create-recruitment", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateRecruitment);
+router.post("/create-recruitment", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleCreateRecruitment);
 
 /**
  * @swagger
@@ -69,7 +69,7 @@ router.post("/create-recruitment", VerifyhHRToken, RoleAuthorization("HR-Admin")
  *       200:
  *         description: List of all recruitment records
  */
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllRecruitments);
+router.get("/all", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleAllRecruitments);
 
 /**
  * @swagger
@@ -92,7 +92,7 @@ router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllRecru
  *       404:
  *         description: Recruitment record not found
  */
-router.get("/:recruitmentID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleRecruitment);
+router.get("/:recruitmentID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleRecruitment);
 
 /**
  * @swagger
@@ -128,7 +128,7 @@ router.get("/:recruitmentID", VerifyhHRToken, RoleAuthorization("HR-Admin"), Han
  *       404:
  *         description: Recruitment record not found
  */
-router.patch("/update-recruitment", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateRecruitment);
+router.patch("/update-recruitment", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleUpdateRecruitment);
 
 /**
  * @swagger
@@ -151,6 +151,6 @@ router.patch("/update-recruitment", VerifyhHRToken, RoleAuthorization("HR-Admin"
  *       404:
  *         description: Recruitment record not found
  */
-router.delete("/delete-recruitment/:recruitmentID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteRecruitment);
+router.delete("/delete-recruitment/:recruitmentID", VerifyHRToken, RoleAuthorization("HR-Admin"), HandleDeleteRecruitment);
 
 export default router;

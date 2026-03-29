@@ -48,7 +48,7 @@ export const VerifyEmployeeToken = (req, res, next) => {
 
 /* ===================== HR TOKEN ===================== */
 // Corrected middleware name
-export const VerifyhHRToken = (req, res, next) => {
+export const VerifyHRToken = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const token =

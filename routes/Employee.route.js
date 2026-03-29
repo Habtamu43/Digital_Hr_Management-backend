@@ -8,7 +8,7 @@ import {
   HandleAllEmployeesIDS
 } from "../controllers/Employee.controller.js";
 
-import { VerifyhHRToken, VerifyEmployeeToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken, VerifyEmployeeToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -39,7 +39,7 @@ const router = express.Router();
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllEmployees
 );
@@ -63,8 +63,7 @@ router.get(
  */
 router.get(
   "/all-employees-ids",
-  VerifyhHRToken,
-  RoleAuthorization("HR-Admin"),
+  VerifyHRToken,RoleAuthorization("HR-Admin"),
   HandleAllEmployeesIDS
 );
 
@@ -96,7 +95,7 @@ router.get(
  */
 router.get(
   "/by-HR/:employeeId",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleEmployeeByHR
 );
@@ -199,7 +198,7 @@ router.patch(
  */
 router.delete(
   "/delete-employee/:employeeId",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleEmployeeDelete
 );

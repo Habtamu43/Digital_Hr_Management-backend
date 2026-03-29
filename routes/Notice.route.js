@@ -7,7 +7,7 @@ import {
   HandleDeleteNotice
 } from "../controllers/Notice.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -19,7 +19,7 @@ const router = express.Router();
  */
 router.post(
   "/create-notice",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleCreateNotice
 );
@@ -31,7 +31,7 @@ router.post(
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllNotice
 );
@@ -43,7 +43,7 @@ router.get(
  */
 router.get(
   "/:noticeID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleNotice
 );
@@ -55,7 +55,7 @@ router.get(
  */
 router.patch(
   "/update-notice",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateNotice
 );
@@ -67,7 +67,7 @@ router.patch(
  */
 router.delete(
   "/delete-notice/:noticeID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteNotice
 );

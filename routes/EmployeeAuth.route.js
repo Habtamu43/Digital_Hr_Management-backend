@@ -11,7 +11,7 @@ import {
   HandleEmployeeCheckVerifyEmail
 } from "../controllers/EmployeeAuth.controller.js";
 
-import { VerifyEmployeeToken, VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyEmployeeToken, VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -74,7 +74,7 @@ const router = express.Router();
  */
 router.post(
   "/signup",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleEmployeeSignup
 );

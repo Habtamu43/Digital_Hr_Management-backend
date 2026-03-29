@@ -9,7 +9,7 @@ import {
 
 import {
   VerifyEmployeeToken,
-  VerifyhHRToken,
+  VerifyHRToken,
 } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
@@ -72,7 +72,7 @@ router.post("/initialize", VerifyEmployeeToken, HandleInitializeAttendance);
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+ VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllAttendance
 );
@@ -105,7 +105,7 @@ router.get(
  */
 router.get(
   "/:attendanceId",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAttendance
 );
@@ -176,7 +176,7 @@ router.patch("/update-attendance", VerifyEmployeeToken, HandleUpdateAttendance);
  */
 router.delete(
   "/delete-attendance/:attendanceId",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteAttendance
 );

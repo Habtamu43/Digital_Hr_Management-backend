@@ -7,7 +7,7 @@ import {
   HandleDeleteDepartment
 } from "../controllers/Department.controller.js";
 
-import { VerifyhHRToken } from "../middleware/Auth.middleware.js";
+import { VerifyHRToken } from "../middleware/Auth.middleware.js";
 import { RoleAuthorization } from "../middleware/RoleAuth.middleware.js";
 
 const router = express.Router();
@@ -50,7 +50,7 @@ const router = express.Router();
  */
 router.post(
   "/create-department",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleCreateDepartment
 );
@@ -74,7 +74,7 @@ router.post(
  */
 router.get(
   "/all",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleAllDepartments
 );
@@ -107,7 +107,7 @@ router.get(
  */
 router.get(
   "/:departmentID",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDepartment
 );
@@ -152,7 +152,7 @@ router.get(
  */
 router.patch(
   "/update-department",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleUpdateDepartment
 );
@@ -190,7 +190,7 @@ router.patch(
  */
 router.delete(
   "/delete-department",
-  VerifyhHRToken,
+  VerifyHRToken,
   RoleAuthorization("HR-Admin"),
   HandleDeleteDepartment
 );
