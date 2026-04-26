@@ -53,7 +53,6 @@ app.post("/test", (req, res) => {
     res.json({ received: req.body });
 });
 
-
 // Mount routes
 app.use("/api/auth/employee", EmployeeAuthRouter);
 app.use("/api/auth/hr", HRAuthRouter);

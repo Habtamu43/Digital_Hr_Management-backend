@@ -5,15 +5,23 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const EmailClient = nodemailer.createTransport({
-  service: "gmail", // Tell Nodemailer to use Gmail settings
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // must be App Password (NOT Gmail login password!)
+    pass: process.env.EMAIL_PASS,
   },
 });
 
-// Sender details
+// ADD THIS: Verify the connection configuration
+EmailClient.verify(function (error, success) {
+  if (error) {
+    console.error("❌ Email Transporter Error:", error);
+  } else {
+    console.log("✅ Email Server is ready to take messages");
+  }
+});
+
 export const sender = {
   name: "HRMS",
-  email: process.env.EMAIL_FROM,
+  email: process.env.EMAIL_FROM || process.env.EMAIL_USER,
 };

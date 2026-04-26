@@ -3,10 +3,10 @@
 /env.js
 
 # Environment variables
-.env
+.env   
 
 # Sequelize config file with credentials
-/config/config.json
+/config/config.json                      
 
 # Logs
 npm-debug.log
