@@ -1,11 +1,9 @@
-
 import express from "express";
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
 import dotenv from "dotenv";
 
+// Routes
 import EmployeeAuthRouter from "./routes/EmployeeAuth.route.js";
 import HRAuthRouter from "./routes/HRAuth.route.js";
 import DashboardRouter from "./routes/Dashboard.route.js";
@@ -22,40 +20,60 @@ import InterviewInsightRouter from "./routes/InterviewInsights.route.js";
 import GenerateRequestRouter from "./routes/GenerateRequest.route.js";
 import CorporateCalendarRouter from "./routes/CorporateCalendar.route.js";
 import BalanceRouter from "./routes/Balance.route.js";
+
 // Swagger
 import { swaggerUi, swaggerSpec } from "./swagger.js";
 
 dotenv.config();
+
 const app = express();
 
-// Middlewares
+/* =======================
+   MIDDLEWARES
+======================= */
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
+/**
+ * ✅ FIXED CORS CONFIG (IMPORTANT FOR COOKIES)
+ */
+app.use(
+  cors({
+    origin: "https://digital-hr-management-frontend.vercel.app",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }),
+);
 
 /* =======================
-   Swagger Documentation
+   SWAGGER
 ======================= */
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// debugging 
+/* =======================
+   DEBUG LOGGER
+======================= */
 app.use((req, res, next) => {
   console.log("Incoming Request:", req.method, req.url);
   console.log("Headers:", req.headers);
   console.log("Body:", req.body);
-
   next();
 });
 
+/* =======================
+   TEST ROUTE
+======================= */
 app.post("/test", (req, res) => {
-    console.log("Test body:", req.body);
-    res.json({ received: req.body });
+  console.log("Test body:", req.body);
+  res.json({ received: req.body });
 });
 
-// Mount routes
+/* =======================
+   ROUTES
+======================= */
 app.use("/api/auth/employee", EmployeeAuthRouter);
 app.use("/api/auth/hr", HRAuthRouter);
+
 app.use("/api/v1/dashboard", DashboardRouter);
 app.use("/api/v1/employee", EmployeeRouter);
 app.use("/api/v1/hr", HRRouter);
@@ -72,5 +90,3 @@ app.use("/api/v1/corporate-calendar", CorporateCalendarRouter);
 app.use("/api/v1/balance", BalanceRouter);
 
 export default app;
-
-
